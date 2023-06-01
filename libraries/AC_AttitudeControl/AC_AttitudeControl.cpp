@@ -2,6 +2,15 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Vehicle/AP_Vehicle_Type.h>
 #include <AP_Scheduler/AP_Scheduler.h>
+#include <AP_Common/AP_Common.h>
+
+// we need a boardconfig created so that the io processor's enable
+// parameter is available
+#if HAL_WITH_IO_MCU
+#include <AP_BoardConfig/AP_BoardConfig.h>
+#include <AP_IOMCU/AP_IOMCU.h>
+AP_BoardConfig BoardConfig;
+#endif
 
 extern const AP_HAL::HAL& hal;
 
@@ -353,6 +362,30 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle
         ang_vel_to_euler_rate(_euler_angle_target, _ang_vel_target, _euler_rate_target);
     } else {
         // When feedforward is not enabled, the target euler angle is input into the target and the feedforward rate is zeroed.
+		
+		 // next 3 lines are what you should try to compile
+
+        double myVar = 1.0;
+        euler_roll_angle = euler_roll_angle + myVar;
+        euler_roll_angle += myVar;
+
+        // this is the sinewave section which will need more work
+
+        double rollExcitationAmplitude_deg = 1.0;
+		double pi = 3.1415;
+        double rollExcitationAmplitude_rad = rollExcitationAmplitude_deg * (180 / pi);  // 180 / pi converts radians to degrees.
+        double rollExcitationFrequency_Hz = 0.25;
+        double rollExcitationSinewave_rad = 0.0;
+        double time_s = 0.0;
+        time_s = (double) AP_HAL::millis() / 1000.0;
+
+        // must verify that is in radians
+        rollExcitationSinewave_rad = rollExcitationAmplitude_rad * sin(2.0 * pi * rollExcitationFrequency_Hz * time_s);
+
+        euler_roll_angle += rollExcitationSinewave_rad;
+
+        // end sinewave code
+		
         _euler_angle_target.x = euler_roll_angle;
         _euler_angle_target.y = euler_pitch_angle;
         if (slew_yaw) {
