@@ -382,7 +382,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle
         // must verify that is in radians
         rollExcitationSinewave_rad = rollExcitationAmplitude_rad * sin(2.0 * pi * rollExcitationFrequency_Hz * time_s);
 
-        euler_roll_angle += rollExcitationSinewave_rad;
+        // euler_roll_angle += rollExcitationSinewave_rad;
 
         // end sinewave code
 		
