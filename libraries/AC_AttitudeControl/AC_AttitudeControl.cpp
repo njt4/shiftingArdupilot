@@ -325,6 +325,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
     attitude_controller_run_quat();
 }
 
+		// Shifting Code Is In Here
 // Command an euler roll, pitch and yaw angle with angular velocity feedforward and smoothing
 void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_angle_cd, bool slew_yaw)
 {
@@ -363,7 +364,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle
     } else {
         // When feedforward is not enabled, the target euler angle is input into the target and the feedforward rate is zeroed.
 		
-		 // next 3 lines are what you should try to compile
+		 // next 3 lines are what you should try to compile (starting Shifting code here)
 
         double myVar = 1.0;
         euler_roll_angle = euler_roll_angle + myVar;
@@ -384,6 +385,14 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle
 
         // euler_roll_angle += rollExcitationSinewave_rad;
 
+		// Writing Sinewave "Function" Here:
+		/*
+		if()
+		{
+			sinewaveTime_s = time_s - AC_AttitudeControl::initializationTime_s;  // Subtracts time since the Autopilot Code was Initialized from the overall System time.
+		}
+		uint16_t v = hal.rcin->read(i);  //
+		*/
         // end sinewave code
 		
         _euler_angle_target.x = euler_roll_angle;

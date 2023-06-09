@@ -410,7 +410,11 @@ public:
     static const struct AP_Param::GroupInfo var_info[];
 
     static constexpr Vector3f VECTORF_111{1.0f,1.0f,1.0f};
-
+	
+	// Shifting Sinewave Variables
+	bool hasBeenInitialized = false;
+	double initializationTime_s = 0.0;
+	
 protected:
 
     // Update rate_target_ang_vel using attitude_error_rot_vec_rad
