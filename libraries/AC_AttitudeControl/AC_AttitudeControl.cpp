@@ -384,14 +384,26 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle
         rollExcitationSinewave_rad = rollExcitationAmplitude_rad * sin(2.0 * pi * rollExcitationFrequency_Hz * time_s);
 
         // euler_roll_angle += rollExcitationSinewave_rad;
-
-		// Writing Sinewave "Function" Here:
-		/*
-		if()
+		
+		/
+		uint16_t v = hal.rcin->read(i);  // Reads the PWM value.
+		
+		if (v == 2000)
 		{
-			sinewaveTime_s = time_s - AC_AttitudeControl::initializationTime_s;  // Subtracts time since the Autopilot Code was Initialized from the overall System time.
+			AC_AttitudeControl::hasBeenInitialized = true;  // Changes the initialization bool to be true.	
 		}
-		uint16_t v = hal.rcin->read(i);  //
+		
+		else if (v == 1000)
+		{
+			//hal.console->printf("");  // Error Message for Switch not on.
+		}
+		
+		while (AC_AttitudeControl::hasBeenInitialized == true)
+		{
+			double sinewaveTime_s = time_s - AC_AttitudeControl::initializationTime_s;  // Subtracts the time since the Autopilot Code was Initialized from the time since system boot.
+			
+		}
+		
 		*/
         // end sinewave code
 		
