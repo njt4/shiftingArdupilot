@@ -388,14 +388,14 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle
 		/
 		uint16_t v = hal.rcin->read(i);  // Reads the PWM value.
 		
-		if (v == 2000)
+		if (v == 1500 || v >= 1500)
 		{
 			AC_AttitudeControl::hasBeenInitialized = true;  // Changes the initialization bool to be true.	
 		}
 		
-		else if (v == 1000)
+		else if (v == 1000 || v <= 1000)
 		{
-			//hal.console->printf("");  // Error Message for Switch not on.
+			//hal.console->printf("");  // Error Message for Switch not being on.
 		}
 		
 		while (AC_AttitudeControl::hasBeenInitialized == true)
