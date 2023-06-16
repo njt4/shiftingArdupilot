@@ -364,47 +364,54 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle
     } else {
         // When feedforward is not enabled, the target euler angle is input into the target and the feedforward rate is zeroed.
 		
-		 // next 3 lines are what you should try to compile (starting Shifting code here)
-
-        double myVar = 1.0;
-        euler_roll_angle = euler_roll_angle + myVar;
-        euler_roll_angle += myVar;
+		// next 3 lines are what you should try to compile (starting Shifting code here)
 
         // this is the sinewave section which will need more work
 
         double rollExcitationAmplitude_deg = 1.0;
 		double pi = 3.1415;
-        double rollExcitationAmplitude_rad = rollExcitationAmplitude_deg * (180 / pi);  // 180 / pi converts radians to degrees.
+        double rollExcitationAmplitude_rad = rollExcitationAmplitude_deg * (180 / pi);  //  180 / pi converts radians to degrees.
         double rollExcitationFrequency_Hz = 0.25;
         double rollExcitationSinewave_rad = 0.0;
         double time_s = 0.0;
-        time_s = (double) AP_HAL::millis() / 1000.0;
+        time_s = (double) AP_HAL::millis() / 1000.0;  //  System time variable.
 
-        // must verify that is in radians
-        rollExcitationSinewave_rad = rollExcitationAmplitude_rad * sin(2.0 * pi * rollExcitationFrequency_Hz * time_s);
-
-        // euler_roll_angle += rollExcitationSinewave_rad;
+		uint16_t v = hal.rcin->read(7);  //  Reads the PWM value.
 		
-		/
-		uint16_t v = hal.rcin->read(i);  // Reads the PWM value.
-		
-		if (v == 1500 || v >= 1500)
+		if (v >= 1500)  //  Switch will be on.
 		{
-			AC_AttitudeControl::hasBeenInitialized = true;  // Changes the initialization bool to be true.	
+			if (AC_AttitudeControl::hasBeenInitialized == false)
+			{
+				AC_AttitudeControl::hasBeenInitialized = true;  //  When switch is turned on, changes the initialization flag to true.
+				AC_AttitudeControl::initializationTime_s = time_s;  //  Sets the system time as the initialization time.
+				
+				if (AC_AttitudeControl::hasBeenInitialized != true)  //  Checks if the initialization flag was actually armed.
+				{
+					hal.console->printf("Autopilot Code Failed to Initialize. Try Again.\n");  //  Error message for initialization failure.
+				}
+				else
+				{
+					double sinewaveTime_s = time_s - AC_AttitudeControl::initializationTime_s;  //  Subtracts the time since the Autopilot Code was Initialized from the time since system boot.
+					rollExcitationSinewave_rad = rollExcitationAmplitude_rad * sin(2.0 * pi * rollExcitationFrequency_Hz * sinewaveTime_s);
+				}
+			}
+		}
+		else  //  Switch will be off.
+		{
+			if (AC_AttitudeControl::hasBeenInitialized == true)
+			{
+				AC_AttitudeControl::hasBeenInitialized = false;  //  When switch is turned off, changes the initialization flag back to false.
+				
+				if (AC_AttitudeControl::hasBeenInitialized != false)  //  Checks if the initialization flag was actually disarmed.
+				{
+					hal.console->printf("Autopilot Code Failed to Disarm. Try Again.\n");  //  Error message for de-initialization failure.
+				}
+			}
 		}
 		
-		else if (v == 1000 || v <= 1000)
-		{
-			//hal.console->printf("");  // Error Message for Switch not being on.
-		}
+		// must verify that is in radians
+		euler_roll_angle += rollExcitationSinewave_rad;
 		
-		while (AC_AttitudeControl::hasBeenInitialized == true)
-		{
-			double sinewaveTime_s = time_s - AC_AttitudeControl::initializationTime_s;  // Subtracts the time since the Autopilot Code was Initialized from the time since system boot.
-			
-		}
-		
-		*/
         // end sinewave code
 		
         _euler_angle_target.x = euler_roll_angle;
