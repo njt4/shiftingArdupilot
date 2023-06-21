@@ -329,6 +329,9 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 // Command an euler roll, pitch and yaw angle with angular velocity feedforward and smoothing
 void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_angle_cd, bool slew_yaw)
 {
+	uint16_t b = 1234;  //  Added for testing
+	hal.console->printf("PWM Equals %d. Try Again.\n", b);  //  Here for testing
+	
     // Convert from centidegrees on public interface to radians
     float euler_roll_angle = radians(euler_roll_angle_cd * 0.01f);
     float euler_pitch_angle = radians(euler_pitch_angle_cd * 0.01f);
@@ -404,7 +407,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_yaw(float euler_roll_angle
 				
 				if (AC_AttitudeControl::hasBeenInitialized != false)  //  Checks if the initialization flag was actually disarmed.
 				{
-					hal.console->printf("Autopilot Code Failed to Disarm. Try Again.\n");  //  Error message for de-initialization failure.
+					hal.console->printf("Autopilot Code Failed to Disarm. Try Again.");  //  Error message for de-initialization failure.
 				}
 			}
 		}
