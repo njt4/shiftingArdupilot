@@ -414,6 +414,7 @@ public:
 	// Shifting Sinewave Variables
 	bool hasBeenInitialized = false;
 	double initializationTime_s = 0.0;
+	uint32_t tester = 0;
 	
 protected:
 
