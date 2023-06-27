@@ -335,7 +335,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
         time_s = (double) AP_HAL::millis() / 1000.0;  //  System time variable.
 
 		AC_AttitudeControl::tester++;
-		uint16_t v = hal.rcin->read(0);  //  Reads the PWM value.
+		uint16_t v = hal.rcin->read(4);  //  Reads the PWM value.
 		
 		if (v >= 1505)  //  Switch will be on.
 		{
