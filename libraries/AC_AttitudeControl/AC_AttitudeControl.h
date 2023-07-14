@@ -416,6 +416,7 @@ public:
 	double initializationTime_s = 0.0;
 	uint32_t tester = 0;
 	
+	
 protected:
 
     // Update rate_target_ang_vel using attitude_error_rot_vec_rad

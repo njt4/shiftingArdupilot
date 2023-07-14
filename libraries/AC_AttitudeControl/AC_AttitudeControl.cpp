@@ -288,54 +288,19 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 
     // Add roll trim to compensate tail rotor thrust in heli (will return zero on multirotors)
     euler_roll_angle += get_roll_trim_rad();
-
-    if (_rate_bf_ff_enabled) {
-        // translate the roll pitch and yaw acceleration limits to the euler axis
-        const Vector3f euler_accel = euler_accel_limit(_euler_angle_target, Vector3f{get_accel_roll_max_radss(), get_accel_pitch_max_radss(), get_accel_yaw_max_radss()});
-
-        // When acceleration limiting and feedforward are enabled, the sqrt controller is used to compute an euler
-        // angular velocity that will cause the euler angle to smoothly stop at the input angle with limited deceleration
-        // and an exponential decay specified by smoothing_gain at the end.
-        _euler_rate_target.x = input_shaping_angle(wrap_PI(euler_roll_angle - _euler_angle_target.x), _input_tc, euler_accel.x, _euler_rate_target.x, _dt);
-        _euler_rate_target.y = input_shaping_angle(wrap_PI(euler_pitch_angle - _euler_angle_target.y), _input_tc, euler_accel.y, _euler_rate_target.y, _dt);
-
-        // When yaw acceleration limiting is enabled, the yaw input shaper constrains angular acceleration about the yaw axis, slewing
-        // the output rate towards the input rate.
-        _euler_rate_target.z = input_shaping_ang_vel(_euler_rate_target.z, euler_yaw_rate, euler_accel.z, _dt, _rate_y_tc);
-
-        // Convert euler angle derivative of desired attitude into a body-frame angular velocity vector for feedforward
-        euler_rate_to_ang_vel(_euler_angle_target, _euler_rate_target, _ang_vel_target);
-        // Limit the angular velocity
-        ang_vel_limit(_ang_vel_target, radians(_ang_vel_roll_max), radians(_ang_vel_pitch_max), radians(_ang_vel_yaw_max));
-        // Convert body-frame angular velocity into euler angle derivative of desired attitude
-        ang_vel_to_euler_rate(_euler_angle_target, _ang_vel_target, _euler_rate_target);
-    } else {
-        // When feedforward is not enabled, the target euler angle is input into the target and the feedforward rate is zeroed.
-	
-        _euler_angle_target.x = euler_roll_angle;
-        _euler_angle_target.y = euler_pitch_angle;
-        _euler_angle_target.z += euler_yaw_rate * _dt;
-        // Compute quaternion target attitude
-        _attitude_target.from_euler(_euler_angle_target.x, _euler_angle_target.y, _euler_angle_target.z);
-
-        // Set rate feedforward requests to zero
-        _euler_rate_target.zero();
-        _ang_vel_target.zero();
-    }
-		// next 3 lines are what you should try to compile (starting Shifting code here)
-
+// next 3 lines are what you should try to compile (starting Shifting code here)
         // this is the sinewave section which will need more work
-
+	
         double rollExcitationAmplitude_deg = 1.0;
 		double pi = 3.1415;
         double rollExcitationAmplitude_rad = rollExcitationAmplitude_deg * (pi / 180.0);  //  180 / pi converts radians to degrees.
-        double rollExcitationFrequency_Hz = 0.25;
+        double rollExcitationFrequency_Hz = 2.0;
         double rollExcitationSinewave_rad =  0.0;
         double time_s = 0.0;
         time_s = (double) AP_HAL::millis() / 1000.0;  //  System time variable.
 
 		AC_AttitudeControl::tester++;
-		uint16_t v = hal.rcin->read(4);  //  Reads the PWM value.
+		uint16_t v = hal.rcin->read(5);  //  Reads the PWM value.
 		
 		if (v >= 1505)  //  Switch will be on.
 		{
@@ -347,14 +312,22 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 		double sinewaveTime_s = time_s - AC_AttitudeControl::initializationTime_s;  //  Subtracts the time since the Autopilot Code was Initialized from the time since system boot.
 		rollExcitationSinewave_rad = rollExcitationAmplitude_rad * sin(2.0 * pi * rollExcitationFrequency_Hz * sinewaveTime_s);
 		
-		if (AC_AttitudeControl::tester > 100)
-		{
-			hal.console->printf("PWM value is %d and sinewave value is %f\r\n", v, rollExcitationSinewave_rad * 180.0/pi);
-			AC_AttitudeControl::tester = 0;
-		}
+			if (AC_AttitudeControl::tester > 100)
+			{
+				hal.console->printf("PWM value is %d and sinewave value is %f\r\n", v, rollExcitationSinewave_rad * 180.0 / pi);
+				AC_AttitudeControl::tester = 0;
+				if (_rate_bf_ff_enabled)
+				{
+					hal.console->printf("True.\n");
+				}
+				else
+				{
+					hal.console->printf("False.\n");
+				}
+			}
 		
 		// must verify that is in radians
-		euler_roll_angle += rollExcitationSinewave_rad;
+		//_euler_angle_target.x += rollExcitationSinewave_rad;
 		
 		}
 		else  //  Switch will be off.
@@ -371,6 +344,97 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 		}
         // end sinewave code
 		
+    if (_rate_bf_ff_enabled) {
+        // translate the roll pitch and yaw acceleration limits to the euler axis
+        const Vector3f euler_accel = euler_accel_limit(_euler_angle_target, Vector3f{get_accel_roll_max_radss(), get_accel_pitch_max_radss(), get_accel_yaw_max_radss()});
+
+        // When acceleration limiting and feedforward are enabled, the sqrt controller is used to compute an euler
+        // angular velocity that will cause the euler angle to smoothly stop at the input angle with limited deceleration
+        // and an exponential decay specified by smoothing_gain at the end.
+        _euler_rate_target.x = input_shaping_angle(wrap_PI(euler_roll_angle - _euler_angle_target.x), _input_tc, euler_accel.x, _euler_rate_target.x, _dt);
+        _euler_rate_target.y = input_shaping_angle(wrap_PI(euler_pitch_angle - _euler_angle_target.y), _input_tc, euler_accel.y, _euler_rate_target.y, _dt);
+		
+		_euler_rate_target.x += rollExcitationSinewave_rad; // keep looking into
+        // When yaw acceleration limiting is enabled, the yaw input shaper constrains angular acceleration about the yaw axis, slewing
+        // the output rate towards the input rate.
+        _euler_rate_target.z = input_shaping_ang_vel(_euler_rate_target.z, euler_yaw_rate, euler_accel.z, _dt, _rate_y_tc);
+
+        // Convert euler angle derivative of desired attitude into a body-frame angular velocity vector for feedforward
+        euler_rate_to_ang_vel(_euler_angle_target, _euler_rate_target, _ang_vel_target);
+        // Limit the angular velocity
+        ang_vel_limit(_ang_vel_target, radians(_ang_vel_roll_max), radians(_ang_vel_pitch_max), radians(_ang_vel_yaw_max));
+        // Convert body-frame angular velocity into euler angle derivative of desired attitude
+        ang_vel_to_euler_rate(_euler_angle_target, _ang_vel_target, _euler_rate_target);
+    } else {
+        // When feedforward is not enabled, the target euler angle is input into the target and the feedforward rate is zeroed.
+        _euler_angle_target.x = euler_roll_angle;
+        _euler_angle_target.y = euler_pitch_angle;
+        _euler_angle_target.z += euler_yaw_rate * _dt;
+        // Compute quaternion target attitude
+        _attitude_target.from_euler(_euler_angle_target.x, _euler_angle_target.y, _euler_angle_target.z);
+        // Set rate feedforward requests to zero
+        _euler_rate_target.zero();
+        _ang_vel_target.zero();
+    }
+		// next 3 lines are what you should try to compile (starting Shifting code here)
+        // this is the sinewave section which will need more work
+	/*
+        double rollExcitationAmplitude_deg = 1.0;
+		double pi = 3.1415;
+        double rollExcitationAmplitude_rad = rollExcitationAmplitude_deg * (pi / 180.0);  //  180 / pi converts radians to degrees.
+        double rollExcitationFrequency_Hz = 2.0;
+        double rollExcitationSinewave_rad =  0.0;
+        double time_s = 0.0;
+        time_s = (double) AP_HAL::millis() / 1000.0;  //  System time variable.
+
+		AC_AttitudeControl::tester++;
+		uint16_t v = hal.rcin->read(5);  //  Reads the PWM value.
+		
+		if (v >= 1505)  //  Switch will be on.
+		{
+			if (AC_AttitudeControl::hasBeenInitialized == false)
+			{
+				AC_AttitudeControl::hasBeenInitialized = true;  //  When switch is turned on, changes the initialization flag to true.
+				AC_AttitudeControl::initializationTime_s = time_s;  //  Sets the system time as the initialization time.
+			}
+		double sinewaveTime_s = time_s - AC_AttitudeControl::initializationTime_s;  //  Subtracts the time since the Autopilot Code was Initialized from the time since system boot.
+		rollExcitationSinewave_rad = rollExcitationAmplitude_rad * sin(2.0 * pi * rollExcitationFrequency_Hz * sinewaveTime_s);
+		
+			if (AC_AttitudeControl::tester > 100)
+			{
+				hal.console->printf("PWM value is %d and sinewave value is %f\r\n", v, rollExcitationSinewave_rad * 180.0/pi);
+				AC_AttitudeControl::tester = 0;
+				if (_rate_bf_ff_enabled)
+				{
+					hal.console->printf("True.\n");
+				}
+				else
+				{
+					hal.console->printf("False.\n");
+				}
+			}
+		
+		// must verify that is in radians
+		_euler_angle_target.x += rollExcitationSinewave_rad;
+		
+		}
+		else  //  Switch will be off.
+		{
+			if (AC_AttitudeControl::hasBeenInitialized == true)
+			{
+				AC_AttitudeControl::hasBeenInitialized = false;  //  When switch is turned off, changes the initialization flag back to false.
+				
+				if (AC_AttitudeControl::hasBeenInitialized != false)  //  Checks if the initialization flag was actually disarmed.
+				{
+					hal.console->printf("Autopilot Code Failed to Disarm. Try Again.");  //  Error message for de-initialization failure.
+				}
+			}
+		}
+        // end sinewave code
+	
+		// Compute quaternion target attitude
+        _attitude_target.from_euler(_euler_angle_target.x, _euler_angle_target.y, _euler_angle_target.z);
+	*/
     // Call quaternion attitude controller
     attitude_controller_run_quat();
 }
