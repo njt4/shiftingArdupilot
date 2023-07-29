@@ -230,7 +230,7 @@ const AP_Param::GroupInfo GCS_MAVLINK_Parameters::var_info[] = {
     // @RebootRequired: True
     // @User: Advanced
     AP_GROUPINFO("EXTRA1",   5, GCS_MAVLINK_Parameters, streamRates[5],  1),
-
+	
     // @Param: EXTRA2
     // @DisplayName: Extra data type 2 stream rate to ground station
     // @Description: Extra data type 2 stream rate to ground station
@@ -259,7 +259,7 @@ const AP_Param::GroupInfo GCS_MAVLINK_Parameters::var_info[] = {
     // @Increment: 1
     // @RebootRequired: True
     // @User: Advanced
-    AP_GROUPINFO("PARAMS",   8, GCS_MAVLINK_Parameters, streamRates[8],  10),
+    AP_GROUPINFO("PARAMS",   8, GCS_MAVLINK_Parameters, streamRates[8],  1),
     AP_GROUPEND
 };
 

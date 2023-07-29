@@ -288,9 +288,9 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 
     // Add roll trim to compensate tail rotor thrust in heli (will return zero on multirotors)
     euler_roll_angle += get_roll_trim_rad();
-// next 3 lines are what you should try to compile (starting Shifting code here)
-        // this is the sinewave section which will need more work
 	
+// next 3 lines are what you should try to compile (starting Shifting code here)
+	/*
         double rollExcitationAmplitude_deg = 1.0;
 		double pi = 3.1415;
         double rollExcitationAmplitude_rad = rollExcitationAmplitude_deg * (pi / 180.0);  //  180 / pi converts radians to degrees.
@@ -343,6 +343,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 			}
 		}
         // end sinewave code
+		*/
 		
     if (_rate_bf_ff_enabled) {
         // translate the roll pitch and yaw acceleration limits to the euler axis
@@ -354,7 +355,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
         _euler_rate_target.x = input_shaping_angle(wrap_PI(euler_roll_angle - _euler_angle_target.x), _input_tc, euler_accel.x, _euler_rate_target.x, _dt);
         _euler_rate_target.y = input_shaping_angle(wrap_PI(euler_pitch_angle - _euler_angle_target.y), _input_tc, euler_accel.y, _euler_rate_target.y, _dt);
 		
-		_euler_rate_target.x += rollExcitationSinewave_rad; // keep looking into
+	//	_euler_rate_target.x += rollExcitationSinewave_rad; // keep looking into
         // When yaw acceleration limiting is enabled, the yaw input shaper constrains angular acceleration about the yaw axis, slewing
         // the output rate towards the input rate.
         _euler_rate_target.z = input_shaping_ang_vel(_euler_rate_target.z, euler_yaw_rate, euler_accel.z, _dt, _rate_y_tc);
@@ -378,7 +379,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
     }
 		// next 3 lines are what you should try to compile (starting Shifting code here)
         // this is the sinewave section which will need more work
-	/*
+	
         double rollExcitationAmplitude_deg = 1.0;
 		double pi = 3.1415;
         double rollExcitationAmplitude_rad = rollExcitationAmplitude_deg * (pi / 180.0);  //  180 / pi converts radians to degrees.
@@ -434,7 +435,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 	
 		// Compute quaternion target attitude
         _attitude_target.from_euler(_euler_angle_target.x, _euler_angle_target.y, _euler_angle_target.z);
-	*/
+	
     // Call quaternion attitude controller
     attitude_controller_run_quat();
 }
