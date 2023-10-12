@@ -329,10 +329,10 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
         double rollExcitationFrequency_Hz = 0.02;
         double rollExcitationSinewave_rad =  0.0;
         double time_s = 0.0;
-        time_s = (double) AP_HAL::millis() / 1000.0;  //  System time variable.
+        time_s = (double) AP_HAL::millis() / 1000.0;  //  System time variable
 
 		AC_AttitudeControl::tester++;
-		uint16_t v = hal.rcin->read(5);  //  Reads the PWM value.
+		uint16_t v = hal.rcin->read(5);  //  Reads the PWM value
 		
 		// testing
 		//_euler_angle_target.x = 0;
