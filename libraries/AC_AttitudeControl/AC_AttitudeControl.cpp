@@ -299,7 +299,6 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
         _euler_rate_target.x = input_shaping_angle(wrap_PI(euler_roll_angle - _euler_angle_target.x), _input_tc, euler_accel.x, _euler_rate_target.x, _dt);
         _euler_rate_target.y = input_shaping_angle(wrap_PI(euler_pitch_angle - _euler_angle_target.y), _input_tc, euler_accel.y, _euler_rate_target.y, _dt);
 		
-	//	_euler_rate_target.x += rollExcitationSinewave_rad; // keep looking into
         // When yaw acceleration limiting is enabled, the yaw input shaper constrains angular acceleration about the yaw axis, slewing
         // the output rate towards the input rate.
         _euler_rate_target.z = input_shaping_ang_vel(_euler_rate_target.z, euler_yaw_rate, euler_accel.z, _dt, _rate_y_tc);
@@ -326,14 +325,17 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 	
         double rollExcitationAmplitude_cdeg = 0.1;
 		double pi = 3.1415;
-        double rollExcitationAmplitude_rad = (rollExcitationAmplitude_cdeg) * (pi / 180.0);  //  Converts from cdeg to radians.
-        double rollExcitationFrequency_Hz = 2.0;
+        double rollExcitationAmplitude_rad = rollExcitationAmplitude_cdeg * (pi / 180.0);  //  Converts from cdeg to radians.
+        double rollExcitationFrequency_Hz = 0.02;
         double rollExcitationSinewave_rad =  0.0;
         double time_s = 0.0;
         time_s = (double) AP_HAL::millis() / 1000.0;  //  System time variable.
 
 		AC_AttitudeControl::tester++;
 		uint16_t v = hal.rcin->read(5);  //  Reads the PWM value.
+		
+		// testing
+		//_euler_angle_target.x = 0;
 		
 		if (v >= 1505)  //  Switch will be on.
 		{
