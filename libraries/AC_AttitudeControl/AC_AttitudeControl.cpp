@@ -323,7 +323,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 		// next 3 lines are what you should try to compile (starting Shifting code here)
         // this is the sinewave section which will need more work
 	
-        double rollExcitationAmplitude_cdeg = 0.1;
+        double rollExcitationAmplitude_cdeg = 1.0;  // Was 0.1
 		double pi = 3.1415;
         double rollExcitationAmplitude_rad = rollExcitationAmplitude_cdeg * (pi / 180.0);  //  Converts from cdeg to radians.
         double rollExcitationFrequency_Hz = 0.02;
