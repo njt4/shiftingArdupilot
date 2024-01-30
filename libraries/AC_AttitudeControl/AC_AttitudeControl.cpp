@@ -326,7 +326,7 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
         double rollExcitationAmplitude_cdeg = 0.1;  // Was 0.1
 		double pi = 3.1415;
         double rollExcitationAmplitude_rad = rollExcitationAmplitude_cdeg * (pi / 180.0);  //  Converts from cdeg to radians.
-        double rollExcitationFrequency_Hz = 0.02;
+        double rollExcitationFrequency_Hz = 2.0;
         double rollExcitationSinewave_rad =  0.0;
         double time_s = 0.0;
         time_s = (double) AP_HAL::millis() / 1000.0;  //  System time variable
